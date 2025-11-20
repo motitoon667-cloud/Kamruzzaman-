@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Md. Kamruzzaman — Official</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#ef4444;--muted:#9aa4b2;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#071024 0%, #091427 100%);color:#e6eef6;min-height:100vh}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center}
+    .logo{width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#fb923c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:white}
+    h1{margin:0;font-size:1.6rem}
+    p.lead{margin:0;color:var(--muted)}
+    nav{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+    .btn{background:var(--card);padding:8px 12px;border-radius:10px;color:inherit;text-decoration:none;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:20px}
+    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+    .section h2{margin:0 0 10px 0}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type=text],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+    textarea{min-height:120px}
+    .links a{display:block;color:#cfe9ff;margin:6px 0}
+    .gallery{display:flex;flex-wrap:wrap;gap:8px}
+    .thumb{width:80px;height:80px;border-radius:8px;background:#081223;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    footer{margin-top:22px;text-align:center;color:var(--muted);font-size:13px}
+    .small{font-size:13px;color:var(--muted)}
+    .lang-toggle{margin-left:auto;display:flex;gap:8px}
+    .save{background:linear-gradient(90deg,#10b981,#06b6d4);border:none}
+    .danger{background:#ef4444}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}    
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo" id="logoText">MK</div>
+      <div>
+        <h1 id="siteTitle">Md. Kamruzzaman</h1>
+        <p class="lead" id="siteTag">Videos • Photos • Stories • Updates</p>
+        <div class="lang-toggle">
+          <button class="btn" id="langBn">বাংলা</button>
+          <button class="btn" id="langEn">English</button>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <button class="btn" data-section="about">About</button>
+      <button class="btn" data-section="videos">Videos</button>
+      <button class="btn" data-section="photos">Photos</button>
+      <button class="btn" data-section="blogs">Blogs</button>
+      <button class="btn" data-section="contact">Contact</button>
+      <button class="btn" id="openEditor">Customize (Admin)</button>
+      <a class="btn" id="previewPublic" target="_blank" href="#">Open Public View</a>
+    </nav>
+
+    <div class="grid">
+      <div>
+        <div class="card section" id="publicArea">
+          <!-- Public content rendered here -->
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Quick preview</h3>
+          <p class="small">This preview shows how your public page will look. Use the Customize button to edit content and save. Changes are stored locally in your browser. For server hosting and multi-device editing we can set up a backend later.</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>Admin — Customize site</h2>
+          <div style="margin-top:8px">
+            <label>Site title</label>
+            <input id="inputTitle" type="text" placeholder="Md. Kamruzzaman">
+
+            <label style="margin-top:8px">Tagline</label>
+            <input id="inputTag" type="text" placeholder="Videos • Photos • Stories">
+
+            <label style="margin-top:8px">Address</label>
+            <input id="inputAddress" type="text" placeholder="Your address">
+
+            <label style="margin-top:8px">Facebook page URL</label>
+            <input id="inputFacebook" type="text" placeholder="https://facebook.com/yourpage">
+
+            <label style="margin-top:8px">Other links (comma separated)</label>
+            <input id="inputLinks" type="text" placeholder="https://tiktok.com/..., https://instagram.com/...">
+
+            <label style="margin-top:8px">YouTube video embed URL (one)</label>
+            <input id="inputVideo" type="text" placeholder="https://youtu.be/.... or https://www.youtube.com/watch?v=...">
+
+            <label style="margin-top:8px">Upload photos (you can upload multiple)</label>
+            <input id="inputPhotos" type="file" accept="image/*" multiple>
+
+            <div style="display:flex;gap:8px;margin-top:12px">
+              <button class="btn save" id="saveBtn">Save</button>
+              <button class="btn" id="resetBtn">Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>Saved data</h3>
+          <div id="savedData" class="small"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="small">© <span id="footerYear"></span> Md. Kamruzzaman — Built with the editable template. Want deployment or backend? Ask me.</div>
+    </footer>
+  </div>
+
+  <script>
+    // Simple client-side editable site stored in localStorage. Works offline in this browser.
+    const selectors = {
+      title: document.getElementById('inputTitle'),
+      tag: document.getElementById('inputTag'),
+      address: document.getElementById('inputAddress'),
+      facebook: document.getElementById('inputFacebook'),
+      links: document.getElementById('inputLinks'),
+      video: document.getElementById('inputVideo'),
+      photos: document.getElementById('inputPhotos'),
+      saveBtn: document.getElementById('saveBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      publicArea: document.getElementById('publicArea'),
+      savedData: document.getElementById('savedData'),
+      logoText: document.getElementById('logoText'),
+      siteTitle: document.getElementById('siteTitle'),
+      siteTag: document.getElementById('siteTag'),
+      previewPublic: document.getElementById('previewPublic'),
+      langBn: document.getElementById('langBn'),
+      langEn: document.getElementById('langEn'),
+      footerYear: document.getElementById('footerYear')
+    }
+
+    const DEFAULT = {
+      title: 'Md. Kamruzzaman',
+      tag: 'Videos • Photos • Stories • Updates',
+      address: 'Your address here',
+      facebook: '',
+      links: '',
+      video: '',
+      photos: []
+    }
+
+    function loadState(){
+      const raw = localStorage.getItem('mk_site');
+      return raw? JSON.parse(raw): DEFAULT
+    }
+
+    function saveState(state){
+      localStorage.setItem('mk_site', JSON.stringify(state));
+      renderPublic(state);
+      renderSaved(state);
+    }
+
+    function renderSaved(state){
+      selectors.savedData.textContent = JSON.stringify(state, null, 2).slice(0,600)+'...';
+    }
+
+    function renderPublic(state){
+      selectors.logoText.textContent = state.title.split(' ').map(s=>s[0]||'').slice(0,2).join('').toUpperCase();
+      selectors.siteTitle.textContent = state.title;
+      selectors.siteTag.textContent = state.tag;
+
+      let html = '';
+      html += `<section><h2>About</h2><p class=\"small\">${state.tag}</p></section>`;
+
+      // Videos
+      if(state.video){
+        const embed = youtubeEmbedFromUrl(state.video);
+        html += `<section style=\"margin-top:12px\"><h2>Featured Video</h2>${embed}</section>`;
+      }
+
+      // Photos
+      if(state.photos && state.photos.length){
+        html += `<section style=\"margin-top:12px\"><h2>Photos</h2><div class=\"gallery\">`;
+        state.photos.forEach(src=>{
+          html += `<div class=\"thumb\"><img src=\"${src}\"></div>`;
+        });
+        html += `</div></section>`;
+      }
+
+      // Contact
+      html += `<section style=\"margin-top:12px\"><h2>Contact</h2>`;
+      html += `<p class=\"small\"><strong>Address:</strong> ${state.address}</p>`;
+      if(state.facebook) html += `<p class=\"small\"><strong>Facebook:</strong> <a href=\"${state.facebook}\" target=\"_blank\">${state.facebook}</a></p>`;
+      if(state.links) {
+        const arr = state.links.split(',').map(s=>s.trim()).filter(Boolean);
+        html += `<div class=\"links\">` + arr.map(u=>`<a href=\"${u}\" target=\"_blank\">${u}</a>`).join('') + `</div>`;
+      }
+      html += `</section>`;
+
+      selectors.publicArea.innerHTML = html;
+
+      // update previewPublic link to open a simplified public page in new window
+      const publicHtml = generatePublicHTML(state);
+      const blob = new Blob([publicHtml], {type:'text/html'});
+      const url = URL.createObjectURL(blob);
+      selectors.previewPublic.href = url;
+    }
+
+    function youtubeEmbedFromUrl(url){
+      try{
+        let id = '';
+        if(url.includes('youtu.be/')) id = url.split('youtu.be/')[1].split(/[?&]/)[0];
+        else if(url.includes('v=')) id = new URL(url).searchParams.get('v');
+        else id = url;
+        if(!id) return '';
+        return `<div style=\"position:relative;padding-top:56.25%\"><iframe src=\"https://www.youtube.com/embed/${id}\" style=\"position:absolute;top:0;left:0;width:100%;height:100%\" frameborder=\"0\" allowfullscreen></iframe></div>`;
+      }catch(e){return ''}
+    }
+
+    function generatePublicHTML(state){
+      // Minimal public page HTML
+      const photosHtml = (state.photos||[]).map(s=>`<div style=\"width:120px;height:120px;display:inline-block;margin:6px\"><img src=\"${s}\" style=\"width:100%;height:100%;object-fit:cover;border-radius:8px\"></div>`).join('');
+      const videoEmbed = state.video? youtubeEmbedFromUrl(state.video): '';
+      const linksHtml = (state.links||'').split(',').map(s=>s.trim()).filter(Boolean).map(u=>`<div><a href=\"${u}\">${u}</a></div>`).join('');
+
+      return `<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>${escapeHtml(state.title)}</title></head><body style=\"font-family:Arial,Helvetica,sans-serif;padding:20px;background:#071024;color:#e9f2ff\"><h1>${escapeHtml(state.title)}</h1><p>${escapeHtml(state.tag)}</p>${videoEmbed}<h3>Photos</h3><div>${photosHtml}</div><h3>Contact</h3><p>Address: ${escapeHtml(state.address)}</p>${state.facebook?`<p>Facebook: <a href=\"${state.facebook}\">${state.facebook}</a></p>`:''}${linksHtml}</body></html>`;
+    }
+
+    function escapeHtml(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+    // Load initial
+    selectors.footerYear.textContent = new Date().getFullYear();
+    let state = loadState();
+
+    // populate inputs
+    function populateInputs(){
+      selectors.title.value = state.title||'';
+      selectors.tag.value = state.tag||'';
+      selectors.address.value = state.address||'';
+      selectors.facebook.value = state.facebook||'';
+      selectors.links.value = state.links||'';
+      selectors.video.value = state.video||'';
+      renderPublic(state);
+      renderSaved(state);
+    }
+
+    populateInputs();
+
+    selectors.saveBtn.addEventListener('click', async ()=>{
+      state.title = selectors.title.value || DEFAULT.title;
+      state.tag = selectors.tag.value || DEFAULT.tag;
+      state.address = selectors.address.value || DEFAULT.address;
+      state.facebook = selectors.facebook.value || '';
+      state.links = selectors.links.value || '';
+      state.video = selectors.video.value || '';
+
+      // handle photos upload
+      const files = selectors.photos.files;
+      if(files && files.length){
+        const arr = state.photos && state.photos.length? state.photos.slice(): [];
+        for(let i=0;i<files.length;i++){
+          const data = await fileToDataUrl(files[i]);
+          arr.push(data);
+        }
+        state.photos = arr;
+      }
+
+      saveState(state);
+      alert('Saved locally in this browser. To publish online, upload the public HTML to your hosting (I can help).');
+      selectors.photos.value = '';
+    });
+
+    selectors.resetBtn.addEventListener('click', ()=>{
+      if(confirm('Are you sure you want to reset all saved content?')){
+        localStorage.removeItem('mk_site');
+        state = JSON.parse(JSON.stringify(DEFAULT));
+        populateInputs();
+      }
+    });
+
+    function fileToDataUrl(file){
+      return new Promise((res,rej)=>{
+        const fr = new FileReader();
+        fr.onload = ()=>res(fr.result);
+        fr.onerror = rej;
+        fr.readAsDataURL(file);
+      })
+    }
+
+    // language shortcuts (local text only)
+    selectors.langBn.addEventListener('click', ()=>{
+      selectors.siteTag.textContent = 'ভিডিও • ছবি • গল্প • আপডেটস';
+    })
+    selectors.langEn.addEventListener('click', ()=>{
+      selectors.siteTag.textContent = state.tag || DEFAULT.tag;
+    })
+
+    // open editor button focuses admin area
+    document.getElementById('openEditor').addEventListener('click', ()=>{
+      window.scrollTo({top:document.querySelector('.grid').offsetTop-20,behavior:'smooth'});
+    });
+
+    // helpers
+    function init(){ renderPublic(state); }
+    init();
+
+  </script>
+</body>
+</html>
